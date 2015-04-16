@@ -124,61 +124,37 @@
 <p>为了解决这个问题，我重画了曲线，让每条都有3个精确的控制点：一个在开始的抽屉状态，一个在中间状态，一个在最终的箭头状态。然后，<br>我将这些曲线分成了两种曲线，一种是从开始到中间状态，一种是从中间到结束状态。用两条“连续的”曲线组成一条混合曲线，我只需要<br>确保：当一个点在混合曲线的0-50%部分（不管它的全长）时，就是第一条曲线；当一个点在混合曲线的50-100%部分时，就是第二条曲线；这就意味<br>着，50%标记是这两条曲线的相交点，我就可以将中间状态的端点画在此。（如果我表述不清楚的话，下面这张图片可能会有帮助。“由<br>开始到中间”曲线0-50%的部分是图中较粗的线，很难说清，但是，粗线和细线并不一定完全等长）。</p>
 <p><img src="http://a1.eoeandroid.com/attachment/forum/201501/14/111212eummxbobiaxgemsi.png" alt=""> </p>
 <p>所有的矢量工作完成后，现在重要的是从Illustrator转化成对Android有用的东西。导出.svg格式相当方便得到复杂的样条线，并把他们转<br>化成一系列的点。这是两条曲线在.svg中的样子：</p>
-<p>…java</p>
-<p><path id="MIDDLE_LEFT_FIRSTHALF" fill="none" stroke="#69CCE6" stroke-width="0.25" d="M5.042,35C5.042,20.333,18.625,6.791,35,6.791"></p>
-<p><path id="MIDDLE_LEFT_SECONDHALF" fill="none" stroke="#69CCE6" stroke-width="0.25" d="M35,6.791c16.083,0,26.853,16.702,26.853,28.209"><br>…</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&lt;path </span><br><span class="line">    id=<span class="string">"MIDDLE_LEFT_FIRSTHALF"</span> fill=<span class="string">"none"</span> stroke=<span class="string">"#69CCE6"</span> stroke-width=<span class="string">"0.25"</span></span><br><span class="line">    d=<span class="string">"M5.042,35C5.042,20.333,18.625,6.791,35,6.791"</span></span><br><span class="line">    /&gt;</span><br><span class="line">&lt;path </span><br><span class="line">    id=<span class="string">"MIDDLE_LEFT_SECONDHALF"</span> fill=<span class="string">"none"</span> stroke=<span class="string">"#69CCE6"</span> stroke-width=<span class="string">"0.25"</span> </span><br><span class="line">    d=<span class="string">"M35,6.791c16.083,0,26.853,16.702,26.853,28.209"</span></span><br><span class="line">    /&gt;</span><br></pre></td></tr></table></figure>
 <p>如何从Illustrator转到Android</p>
-<p>有了一个.svg中正确地生成一系列的曲线，我只需要弄明白如何将它们转化为Android/java 曲线。为了使用，这个.svg中重要的一部分是<br>包含d=“…”的部分，它包括一系列的字母，和代表原点和控制点的坐标。这些字符串有着不同的关键字母，但是我的生成的曲线仅包<br>含三个字母（M,C,和c）。</p>
-<p>M - 后面跟着2个值：表示一个移动的命令。表示曲线的起始点，对应于：Path.moveTo()。</p>
-<p>C - 后面跟着6个值（3个点）：表示一个“三次曲线”命令。对应于:Path.cubicTo()。</p>
-<p>c - 后面跟着6个值（3个点）：表示一个“三次曲线”命令，与前一点的相对坐标。对应于：Path.rCubicTo()。</p>
-<p>在人工解析后：上面的.svg xml现在变成了如下的Android Path对象。</p>
-<p>…java<br>  Path first = new Path();<br>  first.moveTo(5.042f, 35f);<br>  first.cubicTo(5.042f, 20.333f, 18.625f, 6.791f, 35f, 6.791f);<br>  Path second = new Path();<br>  second.moveTo(35f, 6.791f);<br>  second.rCubicTo(16.083f, 0f, 26.853f, 16.702f, 26.853f, 28.209f);<br>…</p>
+<p>有了一个.svg中正确地生成一系列的曲线，我只需要弄明白如何将它们转化为Android/java 曲线。为了使用，这个.svg中重要的一部分是<br>包含d=“<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#21547;&#19977;&#20010;&#23383;&#27597;&#65288;M,C,&#21644;c&#65289;&#12290;&#10;&#10;M - &#21518;&#38754;&#36319;&#30528;2&#20010;&#20540;&#65306;&#34920;&#31034;&#19968;&#20010;&#31227;&#21160;&#30340;&#21629;&#20196;&#12290;&#34920;&#31034;&#26354;&#32447;&#30340;&#36215;&#22987;&#28857;&#65292;&#23545;&#24212;&#20110;&#65306;Path.moveTo()&#12290;&#10;&#10;C - &#21518;&#38754;&#36319;&#30528;6&#20010;&#20540;&#65288;3&#20010;&#28857;&#65289;&#65306;&#34920;&#31034;&#19968;&#20010;&#8220;&#19977;&#27425;&#26354;&#32447;&#8221;&#21629;&#20196;&#12290;&#23545;&#24212;&#20110;:Path.cubicTo()&#12290;&#10;&#10;c - &#21518;&#38754;&#36319;&#30528;6&#20010;&#20540;&#65288;3&#20010;&#28857;&#65289;&#65306;&#34920;&#31034;&#19968;&#20010;&#8220;&#19977;&#27425;&#26354;&#32447;&#8221;&#21629;&#20196;&#65292;&#19982;&#21069;&#19968;&#28857;&#30340;&#30456;&#23545;&#22352;&#26631;&#12290;&#23545;&#24212;&#20110;&#65306;Path.rCubicTo()&#12290;&#10;&#10;&#22312;&#20154;&#24037;&#35299;&#26512;&#21518;&#65306;&#19978;&#38754;&#30340;.svg xml&#29616;&#22312;&#21464;&#25104;&#20102;&#22914;&#19979;&#30340;Android Path&#23545;&#35937;&#12290;&#10;&#10;```java&#10;  Path first = new Path();&#10;  first.moveTo(5.042f, 35f);&#10;  first.cubicTo(5.042f, 20.333f, 18.625f, 6.791f, 35f, 6.791f);&#10;  Path second = new Path();&#10;  second.moveTo(35f, 6.791f);&#10;  second.rCubicTo(16.083f, 0f, 26.853f, 16.702f, 26.853f, 28.209f);</span><br></pre></td></tr></table></figure></p>
 <p>实现Drawable</p>
-<p>为了控制画出由两段相连的线组成的那“一条”线，我创建了JoinedPath来包含两个Path对象，并且控制哪一段内部曲线被使用的全部逻辑。<br>然后让一对JoinedPath曲线构造成一个BridgingLine，负责画出两条端点扫描曲线间的可视线段部分。<br>…java<br>JoinedPath joinedA = new JoinedPath(first, second);<br>  JoinedPath joinedB = new JoinedPath(first, second);<br>  BridgingLinemiddleLine = new BridgingLine(joinedA, joinedB);<br>…</p>
+<p>为了控制画出由两段相连的线组成的那“一条”线，我创建了JoinedPath来包含两个Path对象，并且控制哪一段内部曲线被使用的全部逻辑。<br>然后让一对JoinedPath曲线构造成一个BridgingLine，负责画出两条端点扫描曲线间的可视线段部分。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">JoinedPath joinedA = <span class="keyword">new</span> JoinedPath(first, second);</span><br><span class="line">  JoinedPath joinedB = <span class="keyword">new</span> JoinedPath(first, second);</span><br><span class="line">  BridgingLinemiddleLine = <span class="keyword">new</span> BridgingLine(joinedA, joinedB);</span><br></pre></td></tr></table></figure></p>
 <p>如一开始的概述，我的主意是用一个0-1间的值来控制动画。此值，代码中是parameter,用来决定JoinedPath上的哪个点被用来画直线。当parameter<br>更新的时候，invalidateSelf被调用，强制重画新的直线，基于新的parameter。</p>
 <p>小小的注意：为了更容易地取得给定长度的路径上的点，你不得不用PathMeasure封装Path。</p>
-<p>…java<br>/**</p>
-<ul>
-<li>Returns a point on this curve at the given {@code parameter}.</li>
-<li>For {@code parameter} values less than .5f, the first path will drive the point.</li>
-<li>For {@code parameter} values greater than .5f, the second path will drive the point.</li>
-<li>For {@code parameter} equal to .5f, the point will be the point where the two</li>
-<li>internal paths connect.<br><em>/<br>private void getPointOnLine(float parameter, float[] coords) {<br>if (parameter &lt;= .5f) {<br>  parameter </em>= 2;<br>  measureFirst.getPosTan(lengthFirst <em> parameter, coords, null);<br>} else {<br>  parameter -= .5f;<br>  parameter </em>= 2;<br>  measureSecond.getPosTan(lengthSecond * parameter, coords, null);<br>}<br>}<br>…</li>
-</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="javadoc">/**</span><br><span class="line">* Returns a point on this curve at the given &#123;@code parameter&#125;.</span><br><span class="line">* For &#123;@code parameter&#125; values less than .5f, the first path will drive the point.</span><br><span class="line">* For &#123;@code parameter&#125; values greater than .5f, the second path will drive the point.</span><br><span class="line">* For &#123;@code parameter&#125; equal to .5f, the point will be the point where the two</span><br><span class="line">* internal paths connect.</span><br><span class="line">*/</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">getPointOnLine</span><span class="params">(<span class="keyword">float</span> parameter, <span class="keyword">float</span>[] coords)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (parameter &lt;= <span class="number">.5f</span>) &#123;</span><br><span class="line">    parameter *= <span class="number">2</span>;</span><br><span class="line">    measureFirst.getPosTan(lengthFirst * parameter, coords, <span class="keyword">null</span>);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    parameter -= <span class="number">.5f</span>;</span><br><span class="line">    parameter *= <span class="number">2</span>;</span><br><span class="line">    measureSecond.getPosTan(lengthSecond * parameter, coords, <span class="keyword">null</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>接下来，画出这条线就是在drawable的onDraw（Canvas）方法中调用BridgingLine.draw(Canvas)。</p>
-<p>…java<br>/**</p>
-<ul>
-<li>Draw a line between the points defined on the paths backing {@code measureA} and</li>
-<li>{@code measureB} at the current parameter.<br>*/<br>private void draw(Canvas canvas) {<br>pathA.getPointOnLine(parameter, coordsA);<br>pathB.getPointOnLine(parameter, coordsB);<br>canvas.drawLine(coordsA[0], coordsA[1], coordsB[0], coordsB[1], linePaint);<br>}<br>…</li>
-</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="javadoc">/**</span><br><span class="line">* Draw a line between the points defined on the paths backing &#123;@code measureA&#125; and</span><br><span class="line">* &#123;@code measureB&#125; at the current parameter.</span><br><span class="line">*/</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">draw</span><span class="params">(Canvas canvas)</span> </span>&#123;</span><br><span class="line">  pathA.getPointOnLine(parameter, coordsA);</span><br><span class="line">  pathB.getPointOnLine(parameter, coordsB);</span><br><span class="line">  canvas.drawLine(coordsA[<span class="number">0</span>], coordsA[<span class="number">1</span>], coordsB[<span class="number">0</span>], coordsB[<span class="number">1</span>], linePaint);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>一点小事情：</p>
 <p>你可能已经注意到了：当打开时，这个抽屉图标从3点钟方向旋转到9点钟方向，一旦完全打开，下面他就会从9点钟方向旋转到3点钟方向。<br>为了做到这样，我增加了boolean flip属性，和对应的setter；当他应该划过时，通过DrawerListener来通知DrawerArrowDrawable。</p>
 <p>乍看来，这种效果需要另外的一组paths路径；仔细看一下，也许你只需旋转这条路径180度。确实证明通过这样简单的竖直方向镜像，可以<br>实现。这样我们就可以用负的形状变换简单的实现了。</p>
-<p>…java<br>@Override public void draw(Canvas canvas) {<br>  if (flip) {<br>    canvas.save();<br>    canvas.scale(1f, -1f, getIntrinsicWidth() / 2, getIntrinsicHeight() / 2);<br>  }</p>
-<p>  topLine.draw(canvas);<br>  middleLine.draw(canvas);<br>  bottomLine.draw(canvas);</p>
-<p>  if (flip) canvas.restore();<br>}<br>…</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="annotation">@Override</span> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">draw</span><span class="params">(Canvas canvas)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (flip) &#123;</span><br><span class="line">    canvas.save();</span><br><span class="line">    canvas.scale(<span class="number">1f</span>, -<span class="number">1f</span>, getIntrinsicWidth() / <span class="number">2</span>, getIntrinsicHeight() / <span class="number">2</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  topLine.draw(canvas);</span><br><span class="line">  middleLine.draw(canvas);</span><br><span class="line">  bottomLine.draw(canvas);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (flip) canvas.restore();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>当使用一台设备开发时，DrawerArrowDrawable遇到了一个Android长期的缺陷：对于特定的dpi，路径是被写死的。（注：此话我实在翻译不通）事后看来，这很明显：.svg坐标是从一个Illustrator对一个xxhdpi图片的追踪生成的，这里我将1pt等于1px。<br>结果，输出的曲线点是设置成xxhdpi(3px/dp)的像素值。庆幸地是，对path进行一个简单的矩阵转化就可以适应运行设备的密度</p>
-<p>…java<br>float density = resources.getDisplayMetrics().density;<br>scalePath(firstPath, density);</p>
-<pre><code><span class="keyword">...</span>
-</code></pre><p>/**</p>
-<ul>
-<li>Scales the paths to the given screen density. If the density matches the</li>
-<li>{@link DrawerArrowDrawable#PATH_GEN_DENSITY}, no scaling needs to be done.<br>*/<br>private static void scalePath(Path path, float density) {<br>if (density == PATH_GEN_DENSITY) return;<br>Matrix scaleMatrix = new Matrix();<br>scaleMatrix.setScale(density / PATH_GEN_DENSITY, density / PATH_GEN_DENSITY, 0, 0);<br>path.transform(scaleMatrix);<br>}<br>…</li>
-</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">float</span> density = resources.getDisplayMetrics().density;</span><br><span class="line">scalePath(firstPath, density);</span><br><span class="line"></span><br><span class="line">   ...</span><br><span class="line"></span><br><span class="line"><span class="javadoc">/**</span><br><span class="line">* Scales the paths to the given screen density. If the density matches the</span><br><span class="line">* &#123;@link DrawerArrowDrawable#PATH_GEN_DENSITY&#125;, no scaling needs to be done.</span><br><span class="line">*/</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">scalePath</span><span class="params">(Path path, <span class="keyword">float</span> density)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (density == PATH_GEN_DENSITY) <span class="keyword">return</span>;</span><br><span class="line">  Matrix scaleMatrix = <span class="keyword">new</span> Matrix();</span><br><span class="line">  scaleMatrix.setScale(density / PATH_GEN_DENSITY, density / PATH_GEN_DENSITY, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">  path.transform(scaleMatrix);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>另外我增加了对于圆线的支持，让它更好看。</p>
 <p>应用它：</p>
 <p>设置你的应用来使用它也是很简单的，只需如此而已：</p>
-<p>…java<br>final DrawerArrowDrawable drawerArrowDrawable = new DrawerArrowDrawable(resources);<br>getActionBar().setIcon(drawerArrowDrawable);</p>
-<p>drawer.setDrawerListener(new DrawerLayout.SimpleDrawerListener() {<br>  @Override public void onDrawerSlide(View drawerView, float slideOffset) {<br>    // Sometimes slideOffset ends up so close to but not quite 1 or 0.<br>    if (slideOffset &gt;= .995) {<br>      drawerArrowDrawable.setFlip(true);<br>    } else if (slideOffset &lt;= .005) {<br>      drawerArrowDrawable.setFlip(false);<br>    }</p>
-<pre><code>drawerArrowDrawable.setParameter(<span class="command">offset</span>);
-</code></pre><p>  }<br>});<br>…</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> DrawerArrowDrawable drawerArrowDrawable = <span class="keyword">new</span> DrawerArrowDrawable(resources);</span><br><span class="line">getActionBar().setIcon(drawerArrowDrawable);</span><br><span class="line"></span><br><span class="line">drawer.setDrawerListener(<span class="keyword">new</span> DrawerLayout.SimpleDrawerListener() &#123;</span><br><span class="line">  <span class="annotation">@Override</span> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onDrawerSlide</span><span class="params">(View drawerView, <span class="keyword">float</span> slideOffset)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// Sometimes slideOffset ends up so close to but not quite 1 or 0.</span></span><br><span class="line">    <span class="keyword">if</span> (slideOffset &gt;= <span class="number">.995</span>) &#123;</span><br><span class="line">      drawerArrowDrawable.setFlip(<span class="keyword">true</span>);</span><br><span class="line">    &#125; <span class="function"><span class="keyword">else</span> <span class="title">if</span> <span class="params">(slideOffset &lt;= <span class="number">.005</span>)</span> </span>&#123;</span><br><span class="line">      drawerArrowDrawable.setFlip(<span class="keyword">false</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    drawerArrowDrawable.setParameter(offset);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
 <p><img src="http://a1.eoeandroid.com/attachment/forum/201501/14/111213al0bbbmg5h5flkbz.gif" alt=""></p>
   
 	</div>
 		<footer class="article-footer clearfix">
 <div class="article-catetags">
 
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/翻译/">翻译</a>
+  </div>
 
 </div>
 
@@ -199,11 +175,19 @@
 	
 <nav class="article-nav clearfix">
  
+ <div class="prev" >
+ <a href="/2015/04/17/hello-world/" title="Hello World">
+  <strong>上一篇：</strong><br/>
+  <span>
+  Hello World</span>
+</a>
+</div>
+
 
 <div class="next">
-<a href="/2015/04/01/hello-world/"  title="Hello World">
+<a href="/2015/04/01/This-is-post/"  title="This is post">
  <strong>下一篇：</strong><br/> 
- <span>Hello World
+ <span>This is post
 </span>
 </a>
 </div>
@@ -234,7 +218,13 @@
 		<ul class="clearfix">
 		
 			
-				<li><a href="/tags/TODO/" title="TODO">TODO<sup>1</sup></a></li>
+				<li><a href="/tags/TODO-I/" title="TODO I">TODO I<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/翻译/" title="翻译">翻译<sup>1</sup></a></li>
+			
+		
 			
 		
 		</ul>
@@ -245,7 +235,7 @@
   <div class="tagcloudlist">
     <p class="asidetitle">标签云</p>
     <div class="tagcloudlist clearfix">
-       <a href="/tags/TODO/" style="font-size: NaNpx;">TODO</a>
+       <a href="/tags/TODO-I/" style="font-size: NaNpx;">TODO I</a><a href="/tags/翻译/" style="font-size: NaNpx;">翻译</a>
     </div>
   </div>
 
