@@ -83,7 +83,7 @@
 		<a href="https://github.com/wly2014/about" title="wangyunlai" target="_blank" itemprop="author">wangyunlai</a>
 		
   <p class="article-time">
-    <time datetime="2015-04-27T12:45:31.904Z" itemprop="datePublished"> 发表于 2015-04-27</time>
+    <time datetime="2015-04-27T12:54:02.653Z" itemprop="datePublished"> 发表于 2015-04-27</time>
     
   </p>
 </header>
@@ -105,17 +105,39 @@
 <p>首先，介绍一下场景：<br>在这次的评优活动中:校方为了扩大影响面，能让更多的人参与进来，就设置了分享到微信，让亲属或好友也来点赞的环节（一看就很水，所以我才动了念头），注意：其中的点赞是评选网页里头的赞，不是微信发的消息本身的赞。</p>
 <p>下面我所遇到的问题就是如何刷赞的问题。</p>
 <ol>
-<li><p>第一个问题就是，当你用微信进入指定的网页时，你能在最低端看到一个点赞的小手，可以点一下后退出，然后再进入，还可以再点击，但是，这样子的速度太慢；但是在电脑上的浏览器就有不行，看不到点赞处。这是怎么办？不要紧分分钟找到答案，百度搜一下，就可找到相关的答案。例如：<a href="http://www.jb51.net/article/57260.htm。其实按照网上的http://blog.csdn.net/gavin_luo/article/details/40620217就可以解决的。" target="_blank" rel="external">http://www.jb51.net/article/57260.htm。其实按照网上的http://blog.csdn.net/gavin_luo/article/details/40620217就可以解决的。</a></p>
+<li><p>第一个问题就是，当你用微信进入指定的网页时，你能在最低端看到一个点赞的小手，可以点一下后退出，然后再进入，还可以再点击，但是，这样子的速度太慢；但是在电脑上的浏览器就有不行，看不到点赞处。这是怎么办？不要紧分分钟找到答案，百度搜一下，就可找到相关的答案。例如：<a href="http://www.jb51.net/article/57260.htm" target="_blank" rel="external">http://www.jb51.net/article/57260.htm</a>。<br>其实按照网上的<a href="http://blog.csdn.net/gavin_luo/article/details/40620217" target="_blank" rel="external">http://blog.csdn.net/gavin_luo/article/details/40620217</a>就可以解决的。</p>
 </li>
 <li><p>好，现在既然我们能用浏览器打开了，那么就可以查看其源码了，那么就能看到若点击那个按钮会发生什么事了：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">document.getElementById(<span class="string">"btnLike"</span>).onclick=function()&#123;</span><br><span class="line">	var xhr=<span class="keyword">new</span> XMLHttpRequest();</span><br><span class="line">	xhr.open(<span class="string">"GET"</span>,<span class="string">'http://.../evaluation/index.php/apply/like/...'</span>,<span class="keyword">true</span>);</span><br><span class="line">	xhr.withCredentials=<span class="keyword">true</span>;</span><br><span class="line">	xhr.timeout=<span class="number">5000</span>;</span><br><span class="line">	xhr.send(<span class="string">""</span>);</span><br><span class="line">	<span class="keyword">this</span>.innerHTML=<span class="string">'&lt;i class="fa fa-thumbs-up"&gt;&lt;/i&gt;&amp;nbsp;已赞'</span>;</span><br><span class="line">	<span class="keyword">this</span>.onclick=function()&#123;<span class="keyword">return</span> <span class="keyword">false</span>;&#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 </li>
 </ol>
-<p>说实话，我也不知道只是什么意思，但是如果我将xhr.open(“GET”,’<a href="http://.../evaluation/index.php/apply/like/...&#39;,true);中的网址在浏览器中输入的话，那么就有，赞数+1。下面的工作就是不断的刷新该网页了，推荐一款chrome插件：chromereloader。" target="_blank" rel="external">http://.../evaluation/index.php/apply/like/...&#39;,true);中的网址在浏览器中输入的话，那么就有，赞数+1。下面的工作就是不断的刷新该网页了，推荐一款chrome插件：chromereloader。</a></p>
+<p>说实话，我也不知道只是什么意思，但是如果我将”xhr.open（”GET”,’<a href="http://.../evaluation/index.php/apply/like/...&#39;,true）&quot;；中的网址在浏览器中输入的话，那么就有，赞数+1。下面的工作就是不断的刷新该网页了，推荐一款chrome插件：chromereloader。" target="_blank" rel="external">http://.../evaluation/index.php/apply/like/...&#39;,true）&quot;；中的网址在浏览器中输入的话，那么就有，赞数+1。下面的工作就是不断的刷新该网页了，推荐一款chrome插件：chromereloader。</a></p>
 <ol>
 <li>其实，上面的发现还是一种偶然的点进去了才发现的，本来的想法其实是，自己可以写个chrome插件，反正好像只需要javascript的相关的知识，可以学一下，没想到就这么解决了。其实还有一点就是，虽然在chrome并不能看到点赞的按钮，但是实际上在加载html的时候，还是已经加载到了浏览器中，因此，你还是可以看到上面的代码的。</li>
 </ol>
-<p>另外一个小收获：<br><img src="" alt=""></p>
+<p>另外一个小收获：</p>
+<!--
+                    _ooOoo_
+                   o8888888o
+                   88" . "88
+                   (| -_- |)
+                   O\  =  /O
+                ____/`---'\____
+              .'  \\|     |//  `.
+             /  \\|||  :  |||//  \
+            /  _||||| -:- |||||-  \
+            |   | \\\  -  /// |   |
+            | \_|  ''\---/''  |   |
+            \  .-\__  `-`  ___/-. /
+          ___`. .'  /--.--\  `. . __
+       ."" '<  `.___\_<|>_/___.'  >'"".
+      | | :  `- \`.;`\ _ /`;.`/ - ` : | |
+      \  \ `-.   \_ __\ /__ _/   .-` /  /
+ ======`-.____`-.___\_____/___.-`____.-'======
+                    `=---='
+ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            佛祖保佑       永无BUG
+-->
 <p>之前我一直以为在qq群里看到别人发这种东西，只是纯属好玩，但是今天在源码中看到，还是感觉挺吃惊的，但又有种似曾相识的感觉。。。</p>
   
 	</div>
