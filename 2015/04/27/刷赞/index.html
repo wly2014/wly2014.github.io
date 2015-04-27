@@ -83,7 +83,7 @@
 		<a href="https://github.com/wly2014/about" title="wangyunlai" target="_blank" itemprop="author">wangyunlai</a>
 		
   <p class="article-time">
-    <time datetime="2015-04-27T12:54:02.653Z" itemprop="datePublished"> 发表于 2015-04-27</time>
+    <time datetime="2015-04-27T12:57:03.852Z" itemprop="datePublished"> 发表于 2015-04-27</time>
     
   </p>
 </header>
@@ -111,33 +111,11 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">document.getElementById(<span class="string">"btnLike"</span>).onclick=function()&#123;</span><br><span class="line">	var xhr=<span class="keyword">new</span> XMLHttpRequest();</span><br><span class="line">	xhr.open(<span class="string">"GET"</span>,<span class="string">'http://.../evaluation/index.php/apply/like/...'</span>,<span class="keyword">true</span>);</span><br><span class="line">	xhr.withCredentials=<span class="keyword">true</span>;</span><br><span class="line">	xhr.timeout=<span class="number">5000</span>;</span><br><span class="line">	xhr.send(<span class="string">""</span>);</span><br><span class="line">	<span class="keyword">this</span>.innerHTML=<span class="string">'&lt;i class="fa fa-thumbs-up"&gt;&lt;/i&gt;&amp;nbsp;已赞'</span>;</span><br><span class="line">	<span class="keyword">this</span>.onclick=function()&#123;<span class="keyword">return</span> <span class="keyword">false</span>;&#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 </li>
 </ol>
-<p>说实话，我也不知道只是什么意思，但是如果我将”xhr.open（”GET”,’<a href="http://.../evaluation/index.php/apply/like/...&#39;,true）&quot;；中的网址在浏览器中输入的话，那么就有，赞数+1。下面的工作就是不断的刷新该网页了，推荐一款chrome插件：chromereloader。" target="_blank" rel="external">http://.../evaluation/index.php/apply/like/...&#39;,true）&quot;；中的网址在浏览器中输入的话，那么就有，赞数+1。下面的工作就是不断的刷新该网页了，推荐一款chrome插件：chromereloader。</a></p>
+<p>说实话，我也不知道只是什么意思，但是如果我将”xhr.open（…,’…/evaluation/index.php/apply/like/…’,true）”；中的网址在浏览器中输入的话，那么就有，赞数+1。下面的工作就是不断的刷新该网页了，推荐一款chrome插件：chromereloader。</p>
 <ol>
 <li>其实，上面的发现还是一种偶然的点进去了才发现的，本来的想法其实是，自己可以写个chrome插件，反正好像只需要javascript的相关的知识，可以学一下，没想到就这么解决了。其实还有一点就是，虽然在chrome并不能看到点赞的按钮，但是实际上在加载html的时候，还是已经加载到了浏览器中，因此，你还是可以看到上面的代码的。</li>
 </ol>
-<p>另外一个小收获：</p>
-<!--
-                    _ooOoo_
-                   o8888888o
-                   88" . "88
-                   (| -_- |)
-                   O\  =  /O
-                ____/`---'\____
-              .'  \\|     |//  `.
-             /  \\|||  :  |||//  \
-            /  _||||| -:- |||||-  \
-            |   | \\\  -  /// |   |
-            | \_|  ''\---/''  |   |
-            \  .-\__  `-`  ___/-. /
-          ___`. .'  /--.--\  `. . __
-       ."" '<  `.___\_<|>_/___.'  >'"".
-      | | :  `- \`.;`\ _ /`;.`/ - ` : | |
-      \  \ `-.   \_ __\ /__ _/   .-` /  /
- ======`-.____`-.___\_____/___.-`____.-'======
-                    `=---='
- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-            佛祖保佑       永无BUG
--->
+<p>另外一个小收获：<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">                   _ooOoo_</span><br><span class="line">                  o8888888o</span><br><span class="line">                  88" . "88</span><br><span class="line">                  (| -_- |)</span><br><span class="line">                  O\  =  /O</span><br><span class="line">               ____/`---'\____</span><br><span class="line">             .'  \\|     |//  `.</span><br><span class="line">            /  \\|||  :  |||//  \</span><br><span class="line">           /  _||||| -:- |||||-  \</span><br><span class="line">           |   | \\\  -  /// |   |</span><br><span class="line">           | \_|  ''\---/''  |   |</span><br><span class="line">           \  .-\__  `-`  ___/-. /</span><br><span class="line">         ___`. .'  /--.--\  `. . __</span><br><span class="line">      ."" '&lt;  `.___\_&lt;|&gt;_/___.'  &gt;'"".</span><br><span class="line">     | | :  `- \`.;`\ _ /`;.`/ - ` : | |</span><br><span class="line">     \  \ `-.   \_ __\ /__ _/   .-` /  /</span><br><span class="line">======`-.____`-.___\_____/___.-`____.-'======</span><br><span class="line">                   `=---='</span><br><span class="line">^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^</span><br><span class="line">           佛祖保佑       永无BUG</span><br></pre></td></tr></table></figure></p>
 <p>之前我一直以为在qq群里看到别人发这种东西，只是纯属好玩，但是今天在源码中看到，还是感觉挺吃惊的，但又有种似曾相识的感觉。。。</p>
   
 	</div>
