@@ -1,17 +1,32 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 	<title>Flappy Bird of Sound</title>
+	<!--百度站长统计代码-->
+	<script>
+		var _hmt = _hmt || [];
+		(function () {
+			var hm = document.createElement("script");
+			hm.src = "https://hm.baidu.com/hm.js?827e6ba9c1198dc031b9c91a7fdf81a3";
+			var s = document.getElementsByTagName("script")[0];
+			s.parentNode.insertBefore(hm, s);
+		})();
+
+	</script>
+
 </head>
+
 <body align="center">
 	<div style="font-size: 30px;padding-top: 20px;">JUST FOR FUN</div>
 	<p style="font-size: 15px">声音/空格键 控制起跳，右侧调节灵敏度</p>
-	<canvas id="flappy" width="500" height="512"></canvas> 
+	<canvas id="flappy" width="500" height="512"></canvas>
 	<canvas id="audio" width="30" height="200" style="background: #00ffaa"></canvas>
 	<br/>
 	<!--<button onclick="fly()">FLY</button>-->
-	<script src = "game.js"></script>
-	<script src = "audio.js"></script>
-	<script src = "index.js"></script>
+	<script src="game.js"></script>
+	<script src="audio.js"></script>
+	<script src="index.js"></script>
 </body>
+
 </html>
