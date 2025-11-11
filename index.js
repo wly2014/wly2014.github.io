@@ -5,11 +5,30 @@ document.onkeydown = function (event) {
         //开始游戏
         startGame();
         if (first) {
-            startGetMedia();
             first = false;
+            try {
+                startGetMedia();
+            } catch (e) {
+                console.log("可能没开启麦克风")
+                console.log(e)
+            }
         }
-    }else if (e && e.keyCode == 32) {
+    }else if (e && e.keyCode == 32 && !first) {
         // 空格键
         fly();
+    }
+}
+
+function startButton(){
+    //开始游戏
+    startGame();
+    if (first) {
+        first = false;
+        try {
+            startGetMedia();
+        } catch (e) {
+            console.log("可能没开启麦克风")
+            console.log(e)
+        }
     }
 }
