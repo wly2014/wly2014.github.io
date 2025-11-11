@@ -34,7 +34,7 @@
       }
       .char-cell {
         /* 减小单元格尺寸和字体大小，增加可显示数量 */
-        @apply w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 flex items-center justify-center text-xl sm:text-2xl md:text-2xl font-bold border-2 rounded-lg cursor-pointer transition-all duration-300 hover:bg-primary/10;
+        @apply w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 flex items-center justify-center text-xl sm:text-2xl md:text-2xl font-bold rounded-lg cursor-pointer transition-all duration-300 hover:bg-primary/10;
       }
       .char-cell-selected {
         @apply border-danger bg-danger/10 text-danger;
@@ -73,18 +73,18 @@
           <h2 class="text-xl font-semibold text-gray-700">游戏设置</h2>
           <div class="space-y-3">
             <div>
-              <!-- 增加最大行数到12 -->
-              <label for="rows" class="block text-gray-600 mb-1">行数 (2-12)</label>
-              <input type="number" id="rows" class="input-field w-full" min="2" max="12" value="4">
+              <!-- 增加最大行数到20 -->
+              <label for="rows" class="block text-gray-600 mb-1">行数 (2-20)</label>
+              <input type="number" id="rows" class="input-field w-full" min="2" max="20" value="12">
             </div>
             <div>
-              <!-- 增加最大列数到12 -->
-              <label for="cols" class="block text-gray-600 mb-1">列数 (2-12)</label>
-              <input type="number" id="cols" class="input-field w-full" min="2" max="12" value="4">
+              <!-- 增加最大列数到20 -->
+              <label for="cols" class="block text-gray-600 mb-1">列数 (2-20)</label>
+              <input type="number" id="cols" class="input-field w-full" min="2" max="20" value="12">
             </div>
             <div>
               <label for="targets" class="block text-gray-600 mb-1">目标字数量 (1-?)</label>
-              <input type="number" id="targets" class="input-field w-full" min="1" value="3">
+              <input type="number" id="targets" class="input-field w-full" min="1" value="1">
             </div>
           </div>
         </div>
@@ -158,14 +158,44 @@
 
   <script>
     // 常用汉字库 - 扩充汉字数量，增加游戏变化性
-    const commonChars = [
-      '大', '小', '木', '本', '术', '天', '夫', '人', '入', '八',
-      '上', '下', '左', '右', '日', '月', '白', '百', '目', '自',
-      '王', '玉', '主', '土', '士', '干', '千', '十', '石', '右',
-      '刀', '力', '儿', '几', '口', '日', '中', '申', '由', '甲',
-      '金', '木', '水', '火', '土', '东', '南', '西', '北', '前',
-      '后', '多', '少', '来', '去', '里', '外', '长', '短', '高',
-      '低', '远', '近', '粗', '细', '明', '暗', '黑', '白', '红'
+    // const commonChars = [
+    //   '大', '小', '木', '本', '术', '天', '夫', '人', '入', '八',
+    //   '上', '下', '左', '右', '日', '月', '白', '百', '目', '自',
+    //   '王', '玉', '主', '土', '士', '干', '千', '十', '石', '右',
+    //   '刀', '力', '儿', '几', '口', '日', '中', '申', '由', '甲',
+    //   '金', '木', '水', '火', '土', '东', '南', '西', '北', '前',
+    //   '后', '多', '少', '来', '去', '里', '外', '长', '短', '高',
+    //   '低', '远', '近', '粗', '细', '明', '暗', '黑', '白', '红'
+    // ];
+    const similarChineseCharacters = [
+        ['人', '入'],
+        ['戊', '戌'],
+        ['免', '兔'],
+        ['土', '士'],
+        ['日', '曰'],
+        ['大', '太'],
+        ['己', '已'],
+        ['木', '本'],
+        ['未', '末'],
+        ['田', '由'],
+        ['天', '夭'],
+        ['天', '夫'],
+        ['王', '玉'],
+        ['干', '千'],
+        ['子', '孑'],
+        ['止', '正'],
+        ['刀', '刁'],
+        ['力', '刀'],
+        ['又', '叉'],
+        ['白', '自'],
+        ['目', '自'],
+        ['斤', '斥'],
+        ['方', '万'],
+        ['马', '鸟'],
+        ['车', '军'],
+        ['几', '凡'],
+        ['厂', '广'],
+        ['石', '右'],
     ];
     
     // 游戏状态变量
@@ -212,14 +242,14 @@
         return false;
       }
       
-      // 检查范围（已调整为2-12）
-      if (rows < 2 || rows > 12) {
-        showError('行数必须在2-12之间');
+      // 检查范围（已调整为2-20）
+      if (rows < 2 || rows > 20) {
+        showError('行数必须在2-20之间');
         return false;
       }
       
-      if (cols < 2 || cols > 12) {
-        showError('列数必须在2-12之间');
+      if (cols < 2 || cols > 20) {
+        showError('列数必须在2-20之间');
         return false;
       }
       
@@ -306,18 +336,20 @@
     // 生成游戏数据
     function generateGameData() {
       // 随机选择基准字
-      gameState.baseChar = commonChars[Math.floor(Math.random() * commonChars.length)];
-      
-      // 生成目标字（确保与基准字不同）
-      gameState.targetChars = [];
-      for (let i = 0; i < gameState.targets; i++) {
-        let targetChar;
-        do {
-          targetChar = commonChars[Math.floor(Math.random() * commonChars.length)];
-        } while (targetChar === gameState.baseChar || gameState.targetChars.includes(targetChar));
+      baseChars = similarChineseCharacters[Math.floor(Math.random() * similarChineseCharacters.length)];
+      gameState.baseChar = baseChars[0];
+    //   gameState.baseChar = commonChars[Math.floor(Math.random() * commonChars.length)];
+    // 生成目标字（确保与基准字不同）
+        gameState.targetChars = [baseChars[1]];
+    //   gameState.targetChars = [];
+    //   for (let i = 0; i < gameState.targets; i++) {
+    //     let targetChar;
+    //     do {
+    //       targetChar = commonChars[Math.floor(Math.random() * commonChars.length)];
+    //     } while (targetChar === gameState.baseChar || gameState.targetChars.includes(targetChar));
         
-        gameState.targetChars.push(targetChar);
-      }
+    //     gameState.targetChars.push(targetChar);
+    //   }
       
       // 随机生成目标位置（不重复）
       const totalCells = gameState.rows * gameState.cols;
@@ -335,7 +367,9 @@
     function renderGameMatrix() {
       const totalCells = gameState.rows * gameState.cols;
       // 减小网格间距，增加紧凑度
-      let html = `<div class="grid grid-cols-${gameState.cols} gap-2 sm:gap-3 w-full max-w-4xl mx-auto p-2">`;
+    //   let html = `<div class="grid grid-cols-${gameState.cols} gap-2 sm:gap-3 w-full max-w-4xl mx-auto p-2">`;
+        let html = `<div style="display: grid; grid-template-columns: repeat(${gameState.cols}, minmax(0, 1fr)); gap: 0.5rem;" class="w-full max-w-4xl mx-auto p-2">`;
+
       
       for (let i = 0; i < totalCells; i++) {
         // 检查是否为目标位置
