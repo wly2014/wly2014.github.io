@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>找不同的汉字</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- 配置Tailwind自定义样式 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#3b82f6',
+            secondary: '#10b981',
+            accent: '#f59e0b',
+            danger: '#ef4444',
+            neutral: '#64748b',
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .char-cell {
+        /* 减小单元格尺寸和字体大小，增加可显示数量 */
+        @apply w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 flex items-center justify-center text-xl sm:text-2xl md:text-2xl font-bold border-2 rounded-lg cursor-pointer transition-all duration-300 hover:bg-primary/10;
+      }
+      .char-cell-selected {
+        @apply border-danger bg-danger/10 text-danger;
+      }
+      .char-cell-correct {
+        @apply border-secondary bg-secondary/10 text-secondary;
+      }
+      .char-cell-wrong {
+        @apply border-accent bg-accent/10 text-accent;
+      }
+      .btn-primary {
+        @apply bg-primary hover:bg-primary/90 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/50;
+      }
+      .btn-secondary {
+        @apply bg-secondary hover:bg-secondary/90 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-secondary/50;
+      }
+      .input-field {
+        @apply border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen font-sans">
+  <div class="container mx-auto px-4 py-8 max-w-6xl">
+    <!-- 游戏标题 -->
+    <header class="text-center mb-8">
+      <h1 class="text-[clamp(1.8rem,5vw,3rem)] font-bold text-gray-800 mb-2">找不同的汉字</h1>
+      <p class="text-gray-600 text-lg">在矩阵中找出所有与其他汉字不同的字</p>
+    </header>
+    
+    <!-- 游戏控制面板 -->
+    <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- 参数设置区 -->
+        <div class="space-y-4">
+          <h2 class="text-xl font-semibold text-gray-700">游戏设置</h2>
+          <div class="space-y-3">
+            <div>
+              <!-- 增加最大行数到12 -->
+              <label for="rows" class="block text-gray-600 mb-1">行数 (2-12)</label>
+              <input type="number" id="rows" class="input-field w-full" min="2" max="12" value="4">
+            </div>
+            <div>
+              <!-- 增加最大列数到12 -->
+              <label for="cols" class="block text-gray-600 mb-1">列数 (2-12)</label>
+              <input type="number" id="cols" class="input-field w-full" min="2" max="12" value="4">
+            </div>
+            <div>
+              <label for="targets" class="block text-gray-600 mb-1">目标字数量 (1-?)</label>
+              <input type="number" id="targets" class="input-field w-full" min="1" value="3">
+            </div>
+          </div>
+        </div>
+        
+        <!-- 状态显示区 -->
+        <div class="space-y-4">
+          <h2 class="text-xl font-semibold text-gray-700">游戏状态</h2>
+          <div class="space-y-3">
+            <div class="flex justify-between items-center">
+              <span class="text-gray-600">当前状态:</span>
+              <span id="game-status" class="font-medium text-neutral">未开始</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-600">已找到:</span>
+              <span id="found-count" class="font-medium">0/0</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-600">用时:</span>
+              <span id="timer" class="font-medium">00:00</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 控制按钮区 -->
+        <div class="flex flex-col justify-between">
+          <h2 class="text-xl font-semibold text-gray-700">控制</h2>
+          <div class="space-y-3">
+            <button id="start-btn" class="btn-primary w-full flex items-center justify-center">
+              <i class="fa fa-play mr-2"></i> 开始游戏
+            </button>
+            <button id="reset-btn" class="btn-secondary w-full flex items-center justify-center" disabled>
+              <i class="fa fa-refresh mr-2"></i> 重新开始
+            </button>
+          </div>
+          <div class="mt-4 p-3 bg-blue-50 rounded-lg text-sm text-gray-600">
+            <p><i class="fa fa-info-circle text-primary mr-1"></i> 点击矩阵中与其他字不同的汉字，全部找到即可获胜</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 错误提示区 -->
+      <div id="error-message" class="mt-4 hidden p-3 bg-red-50 text-danger rounded-lg text-sm flex items-center">
+        <i class="fa fa-exclamation-circle mr-2"></i>
+        <span></span>
+      </div>
+    </div>
+    
+    <!-- 游戏主区域 - 增加滚动支持，应对大屏幕 -->
+    <div id="game-container" class="bg-white rounded-xl shadow-md p-4 md:p-6 mb-8 min-h-[200px] flex items-center justify-center overflow-x-auto">
+      <div class="text-center text-gray-500">
+        <i class="fa fa-gamepad text-5xl mb-4 opacity-30"></i>
+        <p>请设置游戏参数并点击"开始游戏"</p>
+      </div>
+    </div>
+    
+    <!-- 游戏结果区 -->
+    <div id="result-message" class="hidden bg-white rounded-xl shadow-md p-6 text-center mb-8">
+      <div class="text-4xl mb-4">
+        <i class="fa fa-trophy text-accent"></i>
+      </div>
+      <h2 class="text-2xl font-bold text-gray-800 mb-2">恭喜你获胜了！</h2>
+      <p class="text-gray-600 mb-4">你成功找到了所有不同的汉字</p>
+      <p class="text-gray-700 font-medium">总用时: <span id="final-time" class="text-primary">00:00</span></p>
+    </div>
+    
+    <!-- 页脚 -->
+    <footer class="text-center text-gray-500 text-sm py-4">
+      <p>找不同的汉字 &copy; 2023</p>
+    </footer>
+  </div>
+
+  <script>
+    // 常用汉字库 - 扩充汉字数量，增加游戏变化性
+    const commonChars = [
+      '大', '小', '木', '本', '术', '天', '夫', '人', '入', '八',
+      '上', '下', '左', '右', '日', '月', '白', '百', '目', '自',
+      '王', '玉', '主', '土', '士', '干', '千', '十', '石', '右',
+      '刀', '力', '儿', '几', '口', '日', '中', '申', '由', '甲',
+      '金', '木', '水', '火', '土', '东', '南', '西', '北', '前',
+      '后', '多', '少', '来', '去', '里', '外', '长', '短', '高',
+      '低', '远', '近', '粗', '细', '明', '暗', '黑', '白', '红'
+    ];
+    
+    // 游戏状态变量
+    let gameState = {
+      isPlaying: false,
+      rows: 4,  // 调整默认行数
+      cols: 4,  // 调整默认列数
+      targets: 3,  // 调整默认目标数
+      baseChar: '',
+      targetChars: [],
+      targetPositions: [],
+      found: 0,
+      timer: null,
+      seconds: 0
+    };
+    
+    // DOM元素
+    const rowsInput = document.getElementById('rows');
+    const colsInput = document.getElementById('cols');
+    const targetsInput = document.getElementById('targets');
+    const startBtn = document.getElementById('start-btn');
+    const resetBtn = document.getElementById('reset-btn');
+    const gameContainer = document.getElementById('game-container');
+    const gameStatus = document.getElementById('game-status');
+    const foundCount = document.getElementById('found-count');
+    const timerDisplay = document.getElementById('timer');
+    const errorMessage = document.getElementById('error-message');
+    const resultMessage = document.getElementById('result-message');
+    const finalTime = document.getElementById('final-time');
+    
+    // 事件监听
+    startBtn.addEventListener('click', startGame);
+    resetBtn.addEventListener('click', resetGame);
+    
+    // 验证参数
+    function validateParameters() {
+      const rows = parseInt(rowsInput.value);
+      const cols = parseInt(colsInput.value);
+      const targets = parseInt(targetsInput.value);
+      
+      // 检查是否为有效数字
+      if (isNaN(rows) || isNaN(cols) || isNaN(targets)) {
+        showError('请输入有效的数字');
+        return false;
+      }
+      
+      // 检查范围（已调整为2-12）
+      if (rows < 2 || rows > 12) {
+        showError('行数必须在2-12之间');
+        return false;
+      }
+      
+      if (cols < 2 || cols > 12) {
+        showError('列数必须在2-12之间');
+        return false;
+      }
+      
+      const maxTargets = rows * cols - 1;
+      if (targets < 1 || targets > maxTargets) {
+        showError(`目标字数量必须在1-${maxTargets}之间`);
+        return false;
+      }
+      
+      hideError();
+      return true;
+    }
+    
+    // 显示错误信息
+    function showError(message) {
+      errorMessage.querySelector('span').textContent = message;
+      errorMessage.classList.remove('hidden');
+      // 添加抖动动画
+      errorMessage.classList.add('animate-shake');
+      setTimeout(() => {
+        errorMessage.classList.remove('animate-shake');
+      }, 500);
+    }
+    
+    // 隐藏错误信息
+    function hideError() {
+      errorMessage.classList.add('hidden');
+    }
+    
+    // 开始游戏
+    function startGame() {
+      if (!validateParameters()) return;
+      
+      // 更新游戏状态
+      gameState.rows = parseInt(rowsInput.value);
+      gameState.cols = parseInt(colsInput.value);
+      gameState.targets = parseInt(targetsInput.value);
+      gameState.isPlaying = true;
+      gameState.found = 0;
+      gameState.seconds = 0;
+      
+      // 生成游戏数据
+      generateGameData();
+      
+      // 渲染游戏矩阵
+      renderGameMatrix();
+      
+      // 更新UI状态
+      updateGameStatus();
+      startBtn.disabled = true;
+      resetBtn.disabled = false;
+      rowsInput.disabled = true;
+      colsInput.disabled = true;
+      targetsInput.disabled = true;
+      resultMessage.classList.add('hidden');
+      
+      // 开始计时
+      startTimer();
+    }
+    
+    // 重置游戏
+    function resetGame() {
+      // 停止计时
+      stopTimer();
+      
+      // 重置游戏状态
+      gameState.isPlaying = false;
+      
+      // 更新UI
+      gameContainer.innerHTML = `
+        <div class="text-center text-gray-500">
+          <i class="fa fa-gamepad text-5xl mb-4 opacity-30"></i>
+          <p>请设置游戏参数并点击"开始游戏"</p>
+        </div>
+      `;
+      updateGameStatus();
+      startBtn.disabled = false;
+      resetBtn.disabled = true;
+      rowsInput.disabled = false;
+      colsInput.disabled = false;
+      targetsInput.disabled = false;
+    }
+    
+    // 生成游戏数据
+    function generateGameData() {
+      // 随机选择基准字
+      gameState.baseChar = commonChars[Math.floor(Math.random() * commonChars.length)];
+      
+      // 生成目标字（确保与基准字不同）
+      gameState.targetChars = [];
+      for (let i = 0; i < gameState.targets; i++) {
+        let targetChar;
+        do {
+          targetChar = commonChars[Math.floor(Math.random() * commonChars.length)];
+        } while (targetChar === gameState.baseChar || gameState.targetChars.includes(targetChar));
+        
+        gameState.targetChars.push(targetChar);
+      }
+      
+      // 随机生成目标位置（不重复）
+      const totalCells = gameState.rows * gameState.cols;
+      gameState.targetPositions = [];
+      
+      while (gameState.targetPositions.length < gameState.targets) {
+        const position = Math.floor(Math.random() * totalCells);
+        if (!gameState.targetPositions.includes(position)) {
+          gameState.targetPositions.push(position);
+        }
+      }
+    }
+    
+    // 渲染游戏矩阵
+    function renderGameMatrix() {
+      const totalCells = gameState.rows * gameState.cols;
+      // 减小网格间距，增加紧凑度
+      let html = `<div class="grid grid-cols-${gameState.cols} gap-2 sm:gap-3 w-full max-w-4xl mx-auto p-2">`;
+      
+      for (let i = 0; i < totalCells; i++) {
+        // 检查是否为目标位置
+        const isTarget = gameState.targetPositions.includes(i);
+        let char;
+        
+        if (isTarget) {
+          // 为目标位置分配目标字
+          const targetIndex = gameState.targetPositions.indexOf(i);
+          char = gameState.targetChars[targetIndex];
+        } else {
+          char = gameState.baseChar;
+        }
+        
+        // 创建单元格
+        html += `
+          <div class="char-cell" data-index="${i}" data-is-target="${isTarget}">
+            ${char}
+          </div>
+        `;
+      }
+      
+      html += '</div>';
+      gameContainer.innerHTML = html;
+      
+      // 添加点击事件监听
+      document.querySelectorAll('.char-cell').forEach(cell => {
+        cell.addEventListener('click', handleCellClick);
+      });
+    }
+    
+    // 处理单元格点击
+    function handleCellClick(e) {
+      if (!gameState.isPlaying) return;
+      
+      const cell = e.currentTarget;
+      const isTarget = cell.dataset.isTarget === 'true';
+      
+      // 如果已经被选中，忽略点击
+      if (cell.classList.contains('char-cell-selected') || 
+          cell.classList.contains('char-cell-correct')) {
+        return;
+      }
+      
+      // 标记单元格
+      if (isTarget) {
+        cell.classList.add('char-cell-correct');
+        gameState.found++;
+        checkGameCompletion();
+      } else {
+        cell.classList.add('char-cell-wrong');
+        // 短暂显示错误后恢复
+        setTimeout(() => {
+          cell.classList.remove('char-cell-wrong');
+        }, 500);
+      }
+      
+      // 更新状态显示
+      updateGameStatus();
+    }
+    
+    // 检查游戏是否完成
+    function checkGameCompletion() {
+      if (gameState.found === gameState.targets) {
+        // 游戏结束
+        gameState.isPlaying = false;
+        stopTimer();
+        
+        // 显示所有目标字
+        document.querySelectorAll('.char-cell').forEach(cell => {
+          if (cell.dataset.isTarget === 'true' && 
+              !cell.classList.contains('char-cell-correct')) {
+            cell.classList.add('char-cell-correct');
+          }
+        });
+        
+        // 显示结果
+        finalTime.textContent = formatTime(gameState.seconds);
+        resultMessage.classList.remove('hidden');
+        
+        // 更新状态
+        gameStatus.textContent = '已完成';
+      }
+    }
+    
+    // 开始计时器
+    function startTimer() {
+      if (gameState.timer) clearInterval(gameState.timer);
+      
+      gameState.timer = setInterval(() => {
+        gameState.seconds++;
+        timerDisplay.textContent = formatTime(gameState.seconds);
+      }, 1000);
+    }
+    
+    // 停止计时器
+    function stopTimer() {
+      if (gameState.timer) {
+        clearInterval(gameState.timer);
+        gameState.timer = null;
+      }
+    }
+    
+    // 格式化时间（秒 -> mm:ss）
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+    
+    // 更新游戏状态显示
+    function updateGameStatus() {
+      gameStatus.textContent = gameState.isPlaying ? '游戏中' : '未开始';
+      foundCount.textContent = `${gameState.found}/${gameState.targets}`;
+      timerDisplay.textContent = formatTime(gameState.seconds);
+    }
+    
+    // 添加自定义动画
+    document.head.insertAdjacentHTML('beforeend', `
+      <style>
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-5px); }
+          75% { transform: translateX(5px); }
+        }
+        .animate-shake {
+          animation: shake 0.5s ease-in-out;
+        }
+      </style>
+    `);
+  </script>
+</body>
+</html>
